@@ -15,6 +15,10 @@
 # THIS SOFTWARE OR ITS DERIVATIVES.
 #=============================================================================
 #http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_contours/py_table_of_contents_contours/py_table_of_contents_contours.html
+#store image info for video
+#https://github.com/aspence/spencelab/blob/master/code/python/arenatracker/arenatracker.py
+#make video from csv file
+#https://www.youtube.com/watch?v=phYvecuvKgo
 import PyCapture2
 from sys import exit
 import time
@@ -30,16 +34,16 @@ class CamSetup(object):
 	    print
 
     def printCameraInfo(self, cam):
-	    camInfo = cam.getCameraInfo()
-	    print "\n*** CAMERA INFORMATION ***\n"
-	    print "Serial number - ", camInfo.serialNumber
-	    print "Camera model - ", camInfo.modelName
-	    print "Camera vendor - ", camInfo.vendorName
-	    print "Sensor - ", camInfo.sensorInfo
-	    print "Resolution - ", camInfo.sensorResolution
-	    print "Firmware version - ", camInfo.firmwareVersion
-	    print "Firmware build time - ", camInfo.firmwareBuildTime
-	    print
+        camInfo = cam.getCameraInfo()
+        print "\n*** CAMERA INFORMATION ***\n"
+        print "Serial number - ", camInfo.serialNumber
+        print "Camera model - ", camInfo.modelName
+        print "Camera vendor - ", camInfo.vendorName
+        print "Sensor - ", camInfo.sensorInfo
+        print "Resolution - ", camInfo.sensorResolution
+        print "Firmware version - ", camInfo.firmwareVersion
+        print "Firmware build time - ", camInfo.firmwareBuildTime
+        print
 
     def printFormat7Capabilities(self, fmt7info):
 	    print "Max image pixels: ({}, {})".format(fmt7info.maxWidth, fmt7info.maxHeight)
@@ -89,7 +93,7 @@ class CamSetup(object):
         return bus
 
 		#needs to pass in framerate in main code
-    def CameraSetup(self, framerate):
+    def CameraSetup(self, framerate, exposure):
         bus = self.BusSetup()
          # Select camera on 0th index
         self.camera = PyCapture2.Camera()
@@ -135,16 +139,17 @@ class CamSetup(object):
 		        print "Format7 settings are not valid!"
 		        exit()
 	        c.setFormat7ConfigurationPacket(fmt7pktInf.recommendedBytesPerPacket, fmt7imgSet)
-#control frame rate
+    #control frame rate
         c.setProperty(type = PyCapture2.PROPERTY_TYPE.FRAME_RATE, autoManualMode = False)
+        c.setProperty(type = PyCapture2.PROPERTY_TYPE.AUTO_EXPOSURE, autoManualMode = False)
         c.setProperty(type = PyCapture2.PROPERTY_TYPE.FRAME_RATE, absValue = framerate)
+        c.setProperty(type = PyCapture2.PROPERTY_TYPE.AUTO_EXPOSURE, absValue = exposure)
         return c
 
 
     def FrameRate(self, camera):
         print "Getting camera frame rate"
         c = camera
-        print c.getVideoModeAndFrameRate()
         print "enumerated rates are"
     #print PyCapture2.FRAME_RATE
 
@@ -160,7 +165,7 @@ class CamSetup(object):
 
 	# Disable camera embedded timestamp
         self.enableEmbeddedTimeStamp(c, False)
-        c.disconnect()
+        #c.disconnect()
         raw_input("Done! Press Enter to exit...\n")
 '''
 In [9]: foo=PyCapture2.FRAMERATE
